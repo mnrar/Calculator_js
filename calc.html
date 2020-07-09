@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>A Calculator</title>
+    <style>
+        body{
+            background-color: #9990f0;
+        }
+
+        .calculator{
+            width: 800px;
+            margin: 40px auto;
+            padding: 10px;
+            background-color: #cccccc;
+            border: 20px solid #cccccc;
+            border-radius: 20px;
+        }
+
+        .diplay-container{
+            border: 2px solid black;
+            background-color: #5bcf55;
+        }
+
+        .display{
+            margin: 10px; 
+            font-size: 60px;
+        }
+
+        button{
+            font-size: 30px;
+            height: 100px;
+            border-radius: 10%;
+            border: none;
+        }
+
+        button:hover{
+            background-color: #555555;
+            color: white;
+        }
+
+        .buttons{
+            display: flex;
+            flex-direction: row;
+            margin-top: 20px;
+        }
+
+        .digits{
+            flex: 66%;
+            display: flex;
+            flex-flow: row wrap-reverse;
+        }
+
+        .digit{
+            flex: 30%;
+            flex-grow: 0;
+            margin: 1%;
+        }
+
+        #logo{
+            margin: 0 auto;
+            flex-grow: 5;
+            background-color: #cccccc;
+            border: none;
+            color: rgb(9, 0, 136);
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .actions{
+            flex: 30%;
+            display: flex;
+            flex-flow: column-reverse wrap;
+        }
+
+        .operation{
+            flex: 20%;
+            margin: 2px;
+            flex-grow: 0;
+            background-color: cornflowerblue;
+        }
+
+        .operation:hover{
+            color: white;
+            background-color: darkblue;
+        }
+
+        .proceed{
+            flex: 41%;
+            margin: 2px;
+            flex-grow: 0;
+            background-color: rgb(217, 96, 85);
+        }
+        .proceed:hover{
+            background-color: darkred;
+            color: white;
+        }
+
+        #plus{
+            flex-grow: 10;
+        }
+
+        #equals{
+            flex-grow: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class = "calculator">
+        <div class = "diplay-container">
+                <span class = "display">0</span>
+        </div>
+        <div class = "buttons">
+            <div class="digits">
+            <button id="one" class="digit" data-value="1">1</button>
+            <button id="two" class="digit" data-value="2">2</button>
+            <button id="three" class="digit" data-value="3">3</button>
+            <button id="four" class="digit" data-value="4">4</button>
+            <button id="five" class="digit" data-value="5">5</button>
+            <button id="six" class="digit" data-value="6">6</button>
+            <button id="seven" class="digit" data-value="7">7</button>
+            <button id="eight" class="digit" data-value="8">8</button>
+            <button id="nine" class="digit" data-value="9">9</button>
+            <button id="zero" class="digit" data-value="0">0</button>
+            <button id="logo">MSBrar</button>
+        </div>
+        <div class="actions">    
+            <button id="plus" class="operation" data-value="+">+</button>
+            <button id="minus" class="operation" data-value="-">-</button>
+            <button id="into" class="operation" data-value="*">*</button>
+            <button id="by" class="operation" data-value="/">/</button>
+            <button id="equals" class="proceed" data-value="=">=</button>
+            <button id="clear" class="proceed" data-value="c">C</button>
+        </div>
+        </div>
+    </div>
+    <script>
+        const MAX_VAL = 999999999999999;
+        const MIN_VAL = -999999999999999;
+        let resultValue = 0;
+        let displayValue = 0;
+        let currOperator = '_';
+
+        const display = document.querySelector('.display');
+
+        function clamp(val, upper, lower){
+            if(val < lower)val = lower;
+            if(val > upper)val = upper;
+            return val;
+        }
+
+        function operate(num1, num2, operator){
+            //--------------------------//
+            num1 = Number(num1);
+            num2 = Number(num2);
+            //--------------------------//
+            switch(operator){
+                case '+':
+                    num1 += num2;
+                    num1 = clamp(num1, MAX_VAL, MIN_VAL);
+                    return (Number.isInteger(num1))? num1 : num1.toFixed(3);
+                case '-':
+                    num1 -= num2;
+                    num1 = clamp(num1, MAX_VAL, MIN_VAL);
+                    return (Number.isInteger(num1))? num1 : num1.toFixed(3);
+                case '*':
+                    num1 *= num2;
+                    num1 = clamp(num1, MAX_VAL, MIN_VAL);
+                    return (Number.isInteger(num1))? num1 : num1.toFixed(3);
+                case '/':
+                    num1 = (num1/num2);
+                    num1 = clamp(num1, MAX_VAL, MIN_VAL);
+                    return (Number.isInteger(num1))? num1 : num1.toFixed(3);
+                default:
+                return (Number.isInteger(num2))? num2 : num2.toFixed(3);                
+            }
+        }
+
+        function digitPress(inp){
+            if(displayValue === 0)displayValue = inp;
+            else {
+                if(displayValue*10 + inp < MAX_VAL){
+                    displayValue = displayValue*10 + inp;
+                }
+            }
+            display.textContent = displayValue;
+        }
+
+        function populateDisplay(e){
+            let inp = Number(e.target.dataset.value);
+            digitPress(inp);
+        }
+
+        function operatorPassed(operation){
+            resultValue = operate(resultValue, displayValue, currOperator);
+            currOperator = operation;
+            displayValue = 0;
+            display.textContent = resultValue + currOperator;            
+        }
+
+        function handleOperator(e){
+            let operation = e.target.dataset.value;
+            operatorPassed(operation);
+        }
+
+        function equalPressed(){
+            operatorPassed('=');
+            displayValue = resultValue;
+            display.textContent = resultValue;
+        }
+
+        function clearPressed(){
+            displayValue = 0;
+            resultValue = 0;
+            currOperator = '_';
+            display.textContent = resultValue;            
+        }
+
+        function handleProceed(e){
+            if(e.target.id === "equals"){
+                equalPressed();
+            } else if(e.target.id == "clear"){
+                clearPressed();
+            } else {
+                console.error("run");
+            }
+        }
+
+        const digits = document.querySelectorAll('.digit');
+        const operations = document.querySelectorAll('.operation');
+        const proceeds = document.querySelectorAll('.proceed');
+
+        digits.forEach(btn => btn.addEventListener('click', populateDisplay));
+        operations.forEach(btn => btn.addEventListener('click', handleOperator));
+        proceeds.forEach(btn => btn.addEventListener('click', handleProceed));
+
+        function handleKeyboardInput(e){
+            if(e.keyCode >= 96 && e.keyCode <= 105){
+                digitPress(e.keyCode - 96);
+            }
+            else if(e.keyCode >= 48 && e.keyCode <= 57){
+                digitPress(e.keyCode - 48);
+            }
+            else{
+                switch(e.keyCode){
+                    case 107:    
+                        operatorPassed('+');
+                        break;
+                    case 109: 
+                    case 173:
+                        operatorPassed('-');
+                        break;
+                    case 106:
+                        operatorPassed('*');
+                        break;
+                    case 111:
+                    case 191:
+                        operatorPassed('/');
+                        break;
+                    case  13:
+                    case  61:
+                        equalPressed(); 
+                        break;
+                    case 8:
+                        clearPressed();
+                        break;                               
+                }
+            }
+        }
+
+        window.addEventListener('keyup', handleKeyboardInput);
+    </script>
+</body>
+</html>
